@@ -39,7 +39,6 @@ extension SingleImageViewController: UIScrollViewDelegate {
 }
 
 extension SingleImageViewController {
-    
     private func rescaleAndCenterImageInScrollView(image: UIImage) {
         let minZoomScale = scrollView.minimumZoomScale
         let maxZoomScale = scrollView.maximumZoomScale
@@ -56,7 +55,6 @@ extension SingleImageViewController {
         let y = (newContentSize.height - visibleRectSize.height) / 2
         scrollView.setContentOffset(CGPoint(x: x, y: y), animated: false)
     }
-    
 }
 
  
