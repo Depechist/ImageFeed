@@ -1,6 +1,7 @@
 import UIKit
 
 final class SingleImageViewController: UIViewController {
+    
     var image: UIImage! {
         didSet { // Обработчик didSet - если нужно подменить изображение уже после viewDidLoad
             guard isViewLoaded else { return } // Проверяем было ли загружено view чтобы не закрешится
@@ -9,14 +10,14 @@ final class SingleImageViewController: UIViewController {
         }
     }
     
-    @IBOutlet weak var scrollView: UIScrollView!
-    @IBOutlet var imageView: UIImageView!
+    @IBOutlet private weak var scrollView: UIScrollView!
+    @IBOutlet private var imageView: UIImageView!
     
     @IBAction private func didTapBackButton(_ sender: UIButton) {
         dismiss(animated: true, completion: nil)
     }
     
-    @IBAction func didTapShareButton(_ sender: UIButton) {
+    @IBAction private func didTapShareButton(_ sender: UIButton) {
         let share = UIActivityViewController(activityItems: [image as Any], applicationActivities: nil)
         present(share, animated: true, completion: nil)
     }
