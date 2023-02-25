@@ -47,6 +47,7 @@ extension ImagesListViewController {
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: showSingleImageSegueIdentifier, sender: indexPath) // Прописываем сегвей на контроллер с одной картинокой
+        tableView.deselectRow(at: indexPath, animated: true) // Убираем выделение в таблице
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
