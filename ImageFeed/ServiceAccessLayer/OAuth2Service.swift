@@ -13,9 +13,9 @@ final class OAuth2Service {
             OAuth2TokenStorage().token = newValue
         } }
     
-    func fetchOAuthToken(
+    func fetchOAuthToken( // Получает 'code' на вход и используя его делает POST запрос с параметрами из API
         _ code: String,
-        completion: @escaping (Result<String, Error>) -> Void ){
+        completion: @escaping (Result<String, Error>) -> Void) {
             let request = authTokenRequest(code: code)
             let task = object(for: request) { [weak self] result in
                 guard let self = self else { return }
@@ -32,6 +32,32 @@ final class OAuth2Service {
 }
 
 extension OAuth2Service {
+    
+    private func authTokenRequest(code: String) -> URLRequest { // Структура POST запроса согласно API
+        URLRequest.makeHTTPRequest(
+            path: "/oauth/token"
+            + "?client_id=\(AccessKey)"
+            + "&&client_secret=\(SecretKey)"
+            + "&&redirect_uri=\(RedirectURI)"
+            + "&&code=\(code)"
+            + "&&grant_type=authorization_code",
+            httpMethod: "POST",
+            baseURL: URL(string: "https://unsplash.com")!
+        ) }
+    
+    private struct OAuthTokenResponseBody: Decodable { // Структура ответа POST запросу согласно API
+        let accessToken: String
+        let tokenType: String
+        let scope: String
+        let createdAt: Int
+        enum CodingKeys: String, CodingKey {
+            case accessToken = "access_token"
+            case tokenType = "token_type"
+            case scope
+            case createdAt = "created_at"
+        }
+    }
+    
     private func object(
         for request: URLRequest,
         completion: @escaping (Result<OAuthTokenResponseBody, Error>) -> Void
@@ -44,31 +70,7 @@ extension OAuth2Service {
             completion(response)
         }
     }
-    
-    private func authTokenRequest(code: String) -> URLRequest {
-        URLRequest.makeHTTPRequest(
-            path: "/oauth/token"
-            + "?client_id=\(AccessKey)"
-            + "&&client_secret=\(SecretKey)"
-            + "&&redirect_uri=\(RedirectURI)"
-            + "&&code=\(code)"
-            + "&&grant_type=authorization_code",
-            httpMethod: "POST",
-            baseURL: URL(string: "https://unsplash.com")!
-        ) }
-    
-    private struct OAuthTokenResponseBody: Decodable {
-        let accessToken: String
-        let tokenType: String
-        let scope: String
-        let createdAt: Int
-        enum CodingKeys: String, CodingKey {
-            case accessToken = "access_token"
-            case tokenType = "token_type"
-            case scope
-            case createdAt = "created_at"
-        }
-    } }
+}
 
 // MARK: - HTTP Request
 
@@ -78,7 +80,6 @@ extension URLRequest {
         httpMethod: String,
         baseURL: URL = DefaultBaseURL
     ) -> URLRequest {
-        
         var request = URLRequest(url: URL(string: path, relativeTo: baseURL)!)
         request.httpMethod = httpMethod
         return request
