@@ -27,7 +27,7 @@ final class WebViewViewController: UIViewController {
         loadWebView()
     }
     
-    @IBAction func didTapBackButton(_ sender: UIButton) {
+    @IBAction private func didTapBackButton(_ sender: UIButton) {
         dismiss(animated: true, completion: nil)
     }
     
@@ -86,10 +86,10 @@ extension WebViewViewController {
     func loadWebView() {
         var urlComponents = URLComponents(string: APIConstants.authorizeURLString)!
         urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: AccessKey),
-            URLQueryItem(name: "redirect_uri", value: RedirectURI),
+            URLQueryItem(name: "client_id", value: accessKey),
+            URLQueryItem(name: "redirect_uri", value: redirectURI),
             URLQueryItem(name: "response_type", value: APIConstants.code),
-            URLQueryItem(name: "scope", value: AccessScope)
+            URLQueryItem(name: "scope", value: accessScope)
         ]
         if let url = urlComponents.url {
             let request = URLRequest(url: url)

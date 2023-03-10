@@ -3,6 +3,8 @@ import Foundation
 final class OAuth2Service {
     
     static let shared = OAuth2Service()
+    //TODO: Рекомендация по код-ревью 10 спринт: Раз это синглтон, то давай добавим приватный конструктор private init() {} (вернуться после изучения темы синглтонов)
+    
     private let urlSession = URLSession.shared
     
     private (set) var authToken: String? {
@@ -27,7 +29,7 @@ final class OAuth2Service {
                 case .failure(let error):
                     completion(.failure(error))
                 } }
-            task.resume()
+            task.resume() //После код ревью 10 спринт убран дублирующий вызов task.resume при создании таски на 124 строке
         }
 }
 
@@ -36,9 +38,9 @@ extension OAuth2Service {
     private func authTokenRequest(code: String) -> URLRequest { // Структура POST запроса согласно API
         URLRequest.makeHTTPRequest(
             path: "/oauth/token"
-            + "?client_id=\(AccessKey)"
-            + "&&client_secret=\(SecretKey)"
-            + "&&redirect_uri=\(RedirectURI)"
+            + "?client_id=\(accessKey)"
+            + "&&client_secret=\(secretKey)"
+            + "&&redirect_uri=\(redirectURI)"
             + "&&code=\(code)"
             + "&&grant_type=authorization_code",
             httpMethod: "POST",
@@ -78,7 +80,7 @@ extension URLRequest {
     static func makeHTTPRequest(
         path: String,
         httpMethod: String,
-        baseURL: URL = DefaultBaseURL
+        baseURL: URL = defaultBaseURL
     ) -> URLRequest {
         var request = URLRequest(url: URL(string: path, relativeTo: baseURL)!)
         request.httpMethod = httpMethod
@@ -119,7 +121,8 @@ extension URLSession {
                 fulfillCompletion(.failure(NetworkError.urlSessionError))
             }
         })
-        task.resume()
+        //task.resume()
+        //10 спринт код ревью: "Думаю, запускать таску тут лишнее. Здесь она должна создаться и вернуться наверх. А вот уже сервис, которому ты таску вернул, будет ее запускать"
         return task
     } }
 
