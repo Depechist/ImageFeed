@@ -2,6 +2,8 @@ import UIKit
 
 final class ProfileViewController: UIViewController {
     
+    //MARK: - UI elements
+    
     private lazy var avatar: UIImageView = {
         let profileimage = UIImage(named: "Photo")
         let avatar = UIImageView(image: profileimage)
@@ -46,6 +48,8 @@ final class ProfileViewController: UIViewController {
         return logoutButton
     }()
     
+    //MARK: - Private methods
+    
     private func addSubViews() {
         view.addSubview(avatar)
         view.addSubview(nameLabel)
@@ -72,6 +76,8 @@ final class ProfileViewController: UIViewController {
             logoutButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24)
         ])
     }
+    
+    //MARK: - Lifecycle
     
     override func viewDidLoad() {
         
