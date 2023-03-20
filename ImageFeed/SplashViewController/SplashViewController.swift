@@ -69,7 +69,8 @@ extension SplashViewController: AuthViewControllerDelegate {
         oauth2Service.fetchOAuthToken(code) { [weak self] result in
             guard let self = self else { return }
             switch result {
-            case .success:
+            case .success(let token):
+                self.fetchProfile(token: token) // Вызов исправляет баг с крэшем после Авторизации-Открыть Профиль
                 self.switchToTabBarController()
                 UIBlockingProgressHUD.dismiss()
             case .failure:
@@ -86,8 +87,10 @@ extension SplashViewController: AuthViewControllerDelegate {
             guard let self = self else { return }
             switch result {
             case .success:
+                UIBlockingProgressHUD.dismiss()
                 self.switchToTabBarController()
             case .failure:
+                UIBlockingProgressHUD.dismiss()
                 break
             }
         }
