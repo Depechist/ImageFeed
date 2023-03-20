@@ -2,6 +2,9 @@ import UIKit
 
 final class ProfileViewController: UIViewController {
     
+    private let storageToken = OAuth2TokenStorage()
+    private let profileService = ProfileService.shared
+    
     //MARK: - UI elements
     
     private lazy var avatar: UIImageView = {
@@ -77,12 +80,20 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
+    private func updateProfile(profile: ProfileService.Profile) {
+        nameLabel.text = profile.name
+        loginNameLabel.text = profile.loginName
+        descriptionLabel.text = profile.bio
+    }
+    
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
         
         addSubViews()
         applyConstraints()
+        
+        updateProfile(profile: profileService.profile!)
         
     }
 }
