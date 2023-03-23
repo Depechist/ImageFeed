@@ -4,6 +4,7 @@ final class ProfileViewController: UIViewController {
     
     private let storageToken = OAuth2TokenStorage()
     private let profileService = ProfileService.shared
+    private var profileImageServiceObserver: NSObjectProtocol?
     
     //MARK: - UI elements
     
@@ -80,10 +81,20 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
-    private func updateProfile(profile: ProfileService.Profile) {
+    private func updateProfileDetails(profile: ProfileService.Profile) {
         nameLabel.text = profile.name
         loginNameLabel.text = profile.loginName
         descriptionLabel.text = profile.bio
+    }
+    
+    private func updateAvatar() {
+        guard
+            let profileImageURL = ProfileImageService.shared.profileImageURL,
+            let url = URL(string: profileImageURL)
+        else { return }
+        
+        // TODO: [Sprint 11] Обновить аватар, используя Kingfisher
+        
     }
     
     //MARK: - Lifecycle
@@ -93,7 +104,18 @@ final class ProfileViewController: UIViewController {
         addSubViews()
         applyConstraints()
         
-        updateProfile(profile: profileService.profile!)
+        updateProfileDetails(profile: profileService.profile!)
         
+        profileImageServiceObserver = NotificationCenter.default // "New API" observer
+            .addObserver(
+                forName: ProfileImageService.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                self.updateAvatar()
+            }
+        updateAvatar()
     }
 }
+

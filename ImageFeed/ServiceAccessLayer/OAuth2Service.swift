@@ -129,8 +129,6 @@ extension URLSession {
                 fulfillCompletion(.failure(NetworkError.urlSessionError))
             }
         })
-        //task.resume()
-        //10 спринт код ревью: "Думаю, запускать таску тут лишнее. Здесь она должна создаться и вернуться наверх. А вот уже сервис, которому ты таску вернул, будет ее запускать"
         return task
     } }
 

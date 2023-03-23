@@ -3,10 +3,8 @@ import ProgressHUD
 
 final class SplashViewController: UIViewController {
     private let showAuthenticationScreenSegueIdentifier = "ShowAuthenticationScreen"
-    
-// TODO: выяснить почему не работает    private let profileService = ProfileService()
     private let profileService = ProfileService.shared
-    
+    private let profileImageService = ProfileImageService.shared
     private let oauth2Service = OAuth2Service()
     private let oauth2TokenStorage = OAuth2TokenStorage()
     private var isFirstLaunch = true
@@ -71,7 +69,7 @@ extension SplashViewController: AuthViewControllerDelegate {
             switch result {
             case .success(let token):
                 self.fetchProfile(token: token) // Вызов исправляет баг с крэшем после Авторизации-Открыть Профиль
-                self.switchToTabBarController()
+//                self.switchToTabBarController()
                 UIBlockingProgressHUD.dismiss()
             case .failure:
                 UIBlockingProgressHUD.dismiss()
@@ -81,12 +79,12 @@ extension SplashViewController: AuthViewControllerDelegate {
         }
     }
     
-    // ??????
     private func fetchProfile(token: String) {
         profileService.fetchProfile(token) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success:
+                self.profileImageService.fetchProfileImageURL(username: self.profileService.profile?.username) { _  in }
                 UIBlockingProgressHUD.dismiss()
                 self.switchToTabBarController()
             case .failure:
