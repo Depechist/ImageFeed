@@ -14,6 +14,7 @@ final class OAuth2Service {
             return OAuth2TokenStorage().token
         }
         set {
+            guard let newValue = newValue else { return }
             OAuth2TokenStorage().token = newValue
         } }
     
@@ -33,10 +34,11 @@ final class OAuth2Service {
                     let authToken = body.accessToken
                     self.authToken = authToken
                     completion(.success(authToken))
-                    self.task = nil
                 case .failure(let error):
                     completion(.failure(error))
-                } }
+                }
+            }
+            self.task = task
             task.resume() //После код ревью 10 спринт убран дублирующий вызов task.resume при создании таски на 124 строке
         }
 }
@@ -68,68 +70,17 @@ extension OAuth2Service {
         }
     }
     
-    private func object(
-        for request: URLRequest,
-        completion: @escaping (Result<OAuthTokenResponseBody, Error>) -> Void
+    private func object(for request: URLRequest, completion: @escaping (Result<OAuthTokenResponseBody, Error>) -> Void
     ) -> URLSessionTask {
-        let decoder = JSONDecoder()
-        return urlSession.data(for: request) { (result: Result<Data, Error>) in
-            let response = result.flatMap { data -> Result<OAuthTokenResponseBody, Error> in
-                Result { try decoder.decode(OAuthTokenResponseBody.self, from: data) }
-            }
-            completion(response)
-        }
-    }
-}
-
-// MARK: - HTTP Request
-
-extension URLRequest {
-    static func makeHTTPRequest(
-        path: String,
-        httpMethod: String,
-        baseURL: URL = defaultBaseURL
-    ) -> URLRequest {
-        var request = URLRequest(url: URL(string: path, relativeTo: baseURL)!)
-        request.httpMethod = httpMethod
-        return request
-    } }
-
-// MARK: - Network Connection
-
-enum NetworkError: Error {
-    case httpStatusCode(Int)
-    case urlRequestError(Error)
-    case urlSessionError
-}
-
-extension URLSession {
-    func data(
-        for request: URLRequest,
-        completion: @escaping (Result<Data, Error>) -> Void
-    ) -> URLSessionTask {
-        let fulfillCompletion: (Result<Data, Error>) -> Void = { result in
-            DispatchQueue.main.async {
-                completion(result)
-            }
-        }
-        let task = dataTask(with: request, completionHandler: { data, response, error in
-            if let data = data,
-               let response = response,
-               let statusCode = (response as? HTTPURLResponse)?.statusCode
-            {
-                if 200 ..< 300 ~= statusCode {
-                    fulfillCompletion(.success(data))
-                } else {
-                    fulfillCompletion(.failure(NetworkError.httpStatusCode(statusCode)))
-                }
-            } else if let error = error {
-                fulfillCompletion(.failure(NetworkError.urlRequestError(error)))
-            } else {
-                fulfillCompletion(.failure(NetworkError.urlSessionError))
+        return urlSession.objectTask(for: request, completion: { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+            switch result {
+            case .success(let body):
+                completion(.success(body))
+            case .failure(let error):
+                completion(.failure(error))
             }
         })
-        return task
-    } }
+    }
+}
 
 
