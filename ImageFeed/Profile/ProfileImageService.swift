@@ -18,57 +18,39 @@ final class ProfileImageService {
         
         let request = makeRequest(username: username!)
         let session = URLSession.shared
-        let task = session.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                if let response = response as? HTTPURLResponse,
-                   !(200...299).contains(response.statusCode) {
-                    completion(.failure(NetworkError.codeError))
-                    return
-                }
-                if let data = data {
-                    do {
-                        let decodedData = try JSONDecoder().decode(UserResult.self, from: data)
-                        let profileImageURL = ProfileImage(decodedData: decodedData)
-                        print("PROFILE IMAGE URL:", self.profileImageURL!)
-                        self.profileImageURL = profileImageURL.profileImage["small"]
-                        completion(.success(self.profileImageURL!))
-                        NotificationCenter.default
-                            .post(
-                                name: ProfileImageService.didChangeNotification,
-                                object: self,
-                                userInfo: ["URL": self.profileImageURL!])
-                    } catch let error {
-                        completion(.failure(error))
-                    }
-                } else {
-                    return
-                }
+        let task = session.objectTask(for: request, completion: { [weak self] (result: Result<UserResult, Error>) in
+            guard let self = self else { return }
+            switch result {
+            case .success(let imageURL):
+                let profileImageURL = imageURL.profileImage.small
+                print("PROFILE IMAGE URL:", profileImageURL)
+                self.profileImageURL = profileImageURL
+                completion(.success(profileImageURL))
+                NotificationCenter.default
+                    .post(
+                        name: ProfileImageService.didChangeNotification,
+                        object: self,
+                        userInfo: ["URL": profileImageURL])
+            case .failure(let error):
+                completion(.failure(error))
             }
-        }
+        })
         self.task = task
         task.resume()
     }
     
-    
-    
     struct UserResult: Codable {
-        let profileImage: [String: String]
+        let profileImage: ProfileImageURL
         
         enum CodingKeys: String, CodingKey {
             case profileImage = "profile_image"
         }
     }
     
-    struct ProfileImage: Codable {
-        let profileImage: [String: String]
-        
-        init(decodedData: UserResult) {
-            self.profileImage = decodedData.profileImage
-        }
+    struct ProfileImageURL: Codable {
+        let small: String
+        let medium: String
+        let large: String
     }
 }
 

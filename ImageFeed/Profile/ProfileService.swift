@@ -12,6 +12,9 @@ final class ProfileService {
         case codeError
     }
     
+    private func convertToProfile(_ ProfileResult: ProfileResult) -> Profile {
+        return Profile(username: ProfileResult.userName, name: "\(ProfileResult.firstName) \(ProfileResult.lastName)", loginName: "@\(ProfileResult.userName)", bio: ProfileResult.bio ?? "")
+         }
     
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
         assert(Thread.isMainThread)
@@ -21,40 +24,22 @@ final class ProfileService {
         
         let request = makeRequest(token: token)
         let session = URLSession.shared
-        let task = session.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                if let response = response as? HTTPURLResponse,
-                   !(200...299).contains(response.statusCode) {
-                    completion(.failure(NetworkError.codeError))
-                    return
-                }
-                if let data = data {
-                    do {
-                        let decodedData = try JSONDecoder().decode(ProfileResult.self, from: data)
-                        let profile = Profile(decodedData: decodedData)
-                        print("PROFILE:", profile)
-                        self.profile = profile
-                        completion(.success(profile))
-                        self.task = nil
-                        if error != nil {
-                            self.lastCode = nil
-                        }
-                    } catch let error {
-                        completion(.failure(error))
-                    }
-                } else {
-                    return
-                }
+        let task = session.objectTask(for: request, completion: { [weak self] (result: Result<ProfileResult, Error>) in
+            guard let self = self else { return }
+            switch result {
+            case .success(let currentUser):
+                let newProfile = self.convertToProfile(currentUser)
+                print("NEW PROFILE", newProfile)
+                self.profile = newProfile
+                print("PROFILE", self.profile)
+                completion(.success(newProfile))
+            case .failure(let error):
+                completion(.failure(error))
             }
-        }
+        })
         self.task = task
         task.resume()
     }
-    
     
     struct ProfileResult: Codable {
         let userName, firstName, lastName: String
@@ -70,14 +55,7 @@ final class ProfileService {
     
     struct Profile: Codable {
         let username, name, loginName: String
-        let bio: String?
-        
-        init(decodedData: ProfileResult) {
-            self.username = decodedData.userName
-            self.name = "\(decodedData.firstName) \(decodedData.lastName)"
-            self.loginName = "@\(decodedData.userName)"
-            self.bio = decodedData.bio
-        }
+        let bio: String
     }
 }
 

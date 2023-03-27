@@ -1,5 +1,11 @@
 import Foundation
 
+enum NetworkError: Error {
+    case httpStatusCode(Int)
+    case urlRequestError(Error)
+    case urlSessionError
+}
+
 extension URLRequest {
     static func makeHTTPRequest(
         path: String,
@@ -10,12 +16,6 @@ extension URLRequest {
         request.httpMethod = httpMethod
         return request
     }
-}
-
-enum NetworkError: Error {
-    case httpStatusCode(Int)
-    case urlRequestError(Error)
-    case urlSessionError
 }
 
 extension URLSession {

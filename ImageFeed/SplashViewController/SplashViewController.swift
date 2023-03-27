@@ -73,6 +73,7 @@ extension SplashViewController: AuthViewControllerDelegate {
                 UIBlockingProgressHUD.dismiss()
             case .failure:
                 UIBlockingProgressHUD.dismiss()
+                self.showAlert()
                 // TODO [Sprint 11]
                 break
             }
@@ -89,8 +90,19 @@ extension SplashViewController: AuthViewControllerDelegate {
                 self.switchToTabBarController()
             case .failure:
                 UIBlockingProgressHUD.dismiss()
+                self.showAlert()
                 break
             }
         }
+    }
+}
+
+extension SplashViewController {
+    func showAlert() {
+        
+        let alert = UIAlertController(title: "Что-то пошло не так(", message: "Не удалось войти в систему", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ок", style: .default))
+        alert.present(self, animated: true)
+        
     }
 }
