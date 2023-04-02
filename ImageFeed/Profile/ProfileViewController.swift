@@ -1,9 +1,11 @@
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
     
     private let storageToken = OAuth2TokenStorage()
     private let profileService = ProfileService.shared
+    private let profileImageService = ProfileImageService.shared
     private var profileImageServiceObserver: NSObjectProtocol?
     
     //MARK: - UI elements
@@ -88,12 +90,13 @@ final class ProfileViewController: UIViewController {
     }
     
     private func updateAvatar() {
+        print("UPDATE AVATAR GUARD", profileImageService.profileImageURL)
         guard
-            let profileImageURL = ProfileImageService.shared.profileImageURL,
+            let profileImageURL = profileImageService.profileImageURL,
             let url = URL(string: profileImageURL)
         else { return }
-        
-        // TODO: [Sprint 11] Обновить аватар, используя Kingfisher
+                
+        avatar.kf.setImage(with: url)
         
     }
     
@@ -105,6 +108,7 @@ final class ProfileViewController: UIViewController {
         applyConstraints()
         
         updateProfileDetails(profile: profileService.profile!)
+        updateAvatar()
         
         profileImageServiceObserver = NotificationCenter.default // "New API" observer
             .addObserver(
@@ -115,7 +119,7 @@ final class ProfileViewController: UIViewController {
                 guard let self = self else { return }
                 self.updateAvatar()
             }
-        updateAvatar()
+        
     }
 }
 

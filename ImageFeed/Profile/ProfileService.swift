@@ -7,6 +7,7 @@ final class ProfileService {
     private var task: URLSessionTask?
     private var lastCode: String?
     private (set) var profile: Profile?
+//    private (set) var username: String?
     
     private enum NetworkError: Error {
         case codeError

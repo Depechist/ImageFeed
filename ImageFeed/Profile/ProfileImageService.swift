@@ -7,24 +7,29 @@ final class ProfileImageService {
     static let shared = ProfileImageService()
     private var task: URLSessionTask?
     private let token = OAuth2TokenStorage().token
+    private var lastCode: String?
     private (set) var profileImageURL: String?
     
     private enum NetworkError: Error {
         case codeError
     }
     
-    func fetchProfileImageURL(username: String?, _ completion: @escaping (Result<String, Error>) -> Void) {
+    func fetchProfileImageURL(token: String, username: String, _ completion: @escaping (Result<String, Error>) -> Void) {
         assert(Thread.isMainThread)
+        if lastCode == token { return }
+        task?.cancel()
+        lastCode = token
         
-        let request = makeRequest(username: username!)
+        var request = URLRequest.makeHTTPRequest(path: "/users/" + "\(username)", httpMethod: "get")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         let session = URLSession.shared
         let task = session.objectTask(for: request, completion: { [weak self] (result: Result<UserResult, Error>) in
             guard let self = self else { return }
             switch result {
             case .success(let imageURL):
-                let profileImageURL = imageURL.profileImage.small
-                print("PROFILE IMAGE URL:", profileImageURL)
+                let profileImageURL = imageURL.profileImage.medium
                 self.profileImageURL = profileImageURL
+                print("PROFILE IMAGE URL:", profileImageURL)
                 completion(.success(profileImageURL))
                 NotificationCenter.default
                     .post(
@@ -32,6 +37,7 @@ final class ProfileImageService {
                         object: self,
                         userInfo: ["URL": profileImageURL])
             case .failure(let error):
+                print("TOKEN IN FAILURE", self.token)
                 completion(.failure(error))
             }
         })
@@ -51,15 +57,5 @@ final class ProfileImageService {
         let small: String
         let medium: String
         let large: String
-    }
-}
-
-extension ProfileImageService {
-    private func makeRequest(username: String) -> URLRequest {
-        guard let url = URL(string: "\(defaultBaseURL)" + "/users" + "/:" + "\(username)") else {
-            fatalError("Failed to create URL for profileImage") }
-        var request = URLRequest(url: url)
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        return request
     }
 }

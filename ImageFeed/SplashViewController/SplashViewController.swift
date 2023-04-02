@@ -5,7 +5,7 @@ final class SplashViewController: UIViewController {
     private let showAuthenticationScreenSegueIdentifier = "ShowAuthenticationScreen"
     private let profileService = ProfileService.shared
     private let profileImageService = ProfileImageService.shared
-    private let oauth2Service = OAuth2Service()
+    private let oauth2Service = OAuth2Service.shared
     private let oauth2TokenStorage = OAuth2TokenStorage()
     private var isFirstLaunch = true
 
@@ -15,9 +15,7 @@ final class SplashViewController: UIViewController {
         if isFirstLaunch {
             if let token = oauth2TokenStorage.token {
                 fetchProfile(token: token)
-                switchToTabBarController()
             } else {
-                // Show Auth Screen
                 performSegue(withIdentifier: showAuthenticationScreenSegueIdentifier, sender: nil)
             } }
         isFirstLaunch = false
@@ -69,7 +67,6 @@ extension SplashViewController: AuthViewControllerDelegate {
             switch result {
             case .success(let token):
                 self.fetchProfile(token: token) // Вызов исправляет баг с крэшем после Авторизации-Открыть Профиль
-//                self.switchToTabBarController()
                 UIBlockingProgressHUD.dismiss()
             case .failure:
                 UIBlockingProgressHUD.dismiss()
@@ -81,28 +78,39 @@ extension SplashViewController: AuthViewControllerDelegate {
     }
     
     private func fetchProfile(token: String) {
-        profileService.fetchProfile(token) { [weak self] result in
+        profileService.fetchProfile(token, completion: { [weak self] result in
             guard let self = self else { return }
             switch result {
-            case .success:
-                self.profileImageService.fetchProfileImageURL(username: self.profileService.profile?.username) { _  in }
+            case .success(let profile):
                 UIBlockingProgressHUD.dismiss()
+                self.fetchProfileImage(token: token, username: profile.username)
+                let profile = profile.username
                 self.switchToTabBarController()
             case .failure:
                 UIBlockingProgressHUD.dismiss()
                 self.showAlert()
                 break
             }
-        }
+        })
+    }
+    private func fetchProfileImage(token: String, username: String) {
+        profileImageService.fetchProfileImageURL(token: token, username: username, { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(_):
+                break
+            case .failure(let error):
+                print(error.localizedDescription)
+                self.showAlert()
+            }
+        })
     }
 }
 
 extension SplashViewController {
     func showAlert() {
-        
         let alert = UIAlertController(title: "Что-то пошло не так(", message: "Не удалось войти в систему", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Ок", style: .default))
-        alert.present(self, animated: true)
-        
+        self.present(alert, animated: true)
     }
 }
