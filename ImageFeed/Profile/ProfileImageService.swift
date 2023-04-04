@@ -29,7 +29,6 @@ final class ProfileImageService {
             case .success(let imageURL):
                 let profileImageURL = imageURL.profileImage.medium
                 self.profileImageURL = profileImageURL
-                print("PROFILE IMAGE URL:", profileImageURL)
                 completion(.success(profileImageURL))
                 NotificationCenter.default
                     .post(
@@ -37,7 +36,6 @@ final class ProfileImageService {
                         object: self,
                         userInfo: ["URL": profileImageURL])
             case .failure(let error):
-                print("TOKEN IN FAILURE", self.token)
                 completion(.failure(error))
             }
         })

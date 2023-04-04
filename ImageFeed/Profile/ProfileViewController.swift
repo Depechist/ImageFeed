@@ -90,14 +90,12 @@ final class ProfileViewController: UIViewController {
     }
     
     private func updateAvatar() {
-        print("UPDATE AVATAR GUARD", profileImageService.profileImageURL)
         guard
             let profileImageURL = profileImageService.profileImageURL,
             let url = URL(string: profileImageURL)
         else { return }
-                
-        avatar.kf.setImage(with: url)
-        
+        let processor = RoundCornerImageProcessor(cornerRadius: 61)
+        avatar.kf.setImage(with: url, options: [.processor(processor)])
     }
     
     //MARK: - Lifecycle

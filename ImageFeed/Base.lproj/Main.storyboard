@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="snk-Fu-SNq">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
@@ -10,34 +10,6 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Splash View Controller-->
-        <scene sceneID="3hl-R7-cQ1">
-            <objects>
-                <viewController id="snk-Fu-SNq" customClass="SplashViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="9Fg-dI-xhT">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchScreenLogo" translatesAutoresizingMaskIntoConstraints="NO" id="T0O-cg-Iyw">
-                                <rect key="frame" x="159" y="387" width="75" height="78"/>
-                            </imageView>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="pts-Fy-Loa"/>
-                        <color key="backgroundColor" name="YP Black"/>
-                        <constraints>
-                            <constraint firstItem="T0O-cg-Iyw" firstAttribute="centerX" secondItem="9Fg-dI-xhT" secondAttribute="centerX" id="KUn-mQ-Ggx"/>
-                            <constraint firstItem="T0O-cg-Iyw" firstAttribute="centerY" secondItem="9Fg-dI-xhT" secondAttribute="centerY" id="ZPG-K1-ctO"/>
-                        </constraints>
-                    </view>
-                    <navigationItem key="navigationItem" id="Wde-78-gbT"/>
-                    <connections>
-                        <segue destination="mDs-Tv-0ST" kind="presentation" identifier="ShowAuthenticationScreen" modalPresentationStyle="fullScreen" id="RhE-FY-5xg"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="BZk-og-ky4" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-950.38167938931292" y="-381.69014084507046"/>
-        </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="Xrh-DN-0Qq">
             <objects>
@@ -59,7 +31,7 @@
         <!--Auth View Controller-->
         <scene sceneID="pk1-Pc-30Z">
             <objects>
-                <viewController id="7TY-bZ-5zt" userLabel="Auth View Controller" customClass="AuthViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="AuthViewController" id="7TY-bZ-5zt" userLabel="Auth View Controller" customClass="AuthViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="KvY-tF-gsn">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -106,7 +78,7 @@
         <!--Web View View Controller-->
         <scene sceneID="dP7-gl-AGh">
             <objects>
-                <viewController id="BA7-2X-S3s" customClass="WebViewViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="WebViewViewController" id="BA7-2X-S3s" customClass="WebViewViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="UeH-Co-GMG">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -344,7 +316,6 @@
     <resources>
         <image name="0" width="200" height="132"/>
         <image name="AuthScreenLogo" width="60" height="60"/>
-        <image name="LaunchScreenLogo" width="75" height="78"/>
         <image name="Like Active" width="30" height="26"/>
         <image name="LikeActive" width="30" height="26"/>
         <image name="ShareButton" width="51" height="50"/>

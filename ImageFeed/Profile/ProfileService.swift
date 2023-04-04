@@ -30,9 +30,7 @@ final class ProfileService {
             switch result {
             case .success(let currentUser):
                 let newProfile = self.convertToProfile(currentUser)
-                print("NEW PROFILE", newProfile)
                 self.profile = newProfile
-                print("PROFILE", self.profile)
                 completion(.success(newProfile))
             case .failure(let error):
                 completion(.failure(error))
