@@ -1,6 +1,12 @@
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
+    
+    private let storageToken = OAuth2TokenStorage()
+    private let profileService = ProfileService.shared
+    private let profileImageService = ProfileImageService.shared
+    private var profileImageServiceObserver: NSObjectProtocol?
     
     //MARK: - UI elements
     
@@ -77,6 +83,21 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
+    private func updateProfileDetails(profile: ProfileService.Profile) {
+        nameLabel.text = profile.name
+        loginNameLabel.text = profile.loginName
+        descriptionLabel.text = profile.bio
+    }
+    
+    private func updateAvatar() {
+        guard
+            let profileImageURL = profileImageService.profileImageURL,
+            let url = URL(string: profileImageURL)
+        else { return }
+        let processor = RoundCornerImageProcessor(cornerRadius: 61)
+        avatar.kf.setImage(with: url, options: [.processor(processor)])
+    }
+    
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -84,5 +105,19 @@ final class ProfileViewController: UIViewController {
         addSubViews()
         applyConstraints()
         
+        updateProfileDetails(profile: profileService.profile!)
+        updateAvatar()
+        
+        profileImageServiceObserver = NotificationCenter.default // "New API" observer
+            .addObserver(
+                forName: ProfileImageService.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                self.updateAvatar()
+            }
+        
     }
 }
+
