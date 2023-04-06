@@ -4,8 +4,8 @@ final class ImagesListViewController: UIViewController {
     
     @IBOutlet private var tableView: UITableView!
     
+    private let imagesListService = ImagesListService()
     private let showSingleImageSegueIdentifier = "ShowSingleImage"
-    
     private let photosName: [String] = Array(0..<20).map{ "\($0)" }
     
     private lazy var dateFormatter: DateFormatter = {
@@ -18,6 +18,16 @@ final class ImagesListViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setNeedsStatusBarAppearanceUpdate()
+    }
+    
+    func tableView( // Вызываем метод fetchPhotosNextPage перед показом ячейки на экране
+        _ tableView: UITableView,
+        willDisplay cell: UITableViewCell,
+        forRowAt indexPath: IndexPath
+    ) {
+        if indexPath.row + 1 == imagesListService.photos.count {
+            imagesListService.fetchPhotosNextPage()
+        }
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
