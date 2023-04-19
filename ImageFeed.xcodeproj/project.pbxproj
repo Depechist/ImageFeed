@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		8A10D64629D85CB3006F7941 /* SwiftKeychainWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = 8A10D64529D85CB3006F7941 /* SwiftKeychainWrapper */; };
 		8A1DC43229BBACCC00F11229 /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 8A1DC43129BBACCC00F11229 /* ProgressHUD */; };
-		8A25386F29DF2976002E6E44 /* ImagesListServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A25386E29DF2976002E6E44 /* ImagesListServiceTests.swift */; };
 		8A509F5229BF88AD0009816C /* UIBlockingProgressHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A509F5129BF88AD0009816C /* UIBlockingProgressHUD.swift */; };
 		8A509F5429BF90680009816C /* ProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A509F5329BF90680009816C /* ProfileService.swift */; };
 		8A5DF45329A8D5BC004DB54F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A5DF45229A8D5BC004DB54F /* Constants.swift */; };
@@ -47,7 +46,6 @@
 
 /* Begin PBXFileReference section */
 		8A25386C29DF2976002E6E44 /* ImageFeedTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImageFeedTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		8A25386E29DF2976002E6E44 /* ImagesListServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagesListServiceTests.swift; sourceTree = "<group>"; };
 		8A509F5129BF88AD0009816C /* UIBlockingProgressHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIBlockingProgressHUD.swift; sourceTree = "<group>"; };
 		8A509F5329BF90680009816C /* ProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileService.swift; sourceTree = "<group>"; };
 		8A5DF45229A8D5BC004DB54F /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -95,14 +93,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		8A25386D29DF2976002E6E44 /* ImageFeedTests */ = {
-			isa = PBXGroup;
-			children = (
-				8A25386E29DF2976002E6E44 /* ImagesListServiceTests.swift */,
-			);
-			path = ImageFeedTests;
-			sourceTree = "<group>";
-		};
 		8A8420E42984346D0061175C /* ImagesList */ = {
 			isa = PBXGroup;
 			children = (
@@ -170,7 +160,6 @@
 			isa = PBXGroup;
 			children = (
 				8AFF615F29796D3F00AC7D1E /* ImageFeed */,
-				8A25386D29DF2976002E6E44 /* ImageFeedTests */,
 				8AFF615E29796D3F00AC7D1E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -318,7 +307,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8A25386F29DF2976002E6E44 /* ImagesListServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

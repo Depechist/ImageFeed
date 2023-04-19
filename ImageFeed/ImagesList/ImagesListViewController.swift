@@ -7,7 +7,8 @@ final class ImagesListViewController: UIViewController {
     private let showSingleImageSegueIdentifier = "ShowSingleImage"
     private let imagesListService = ImagesListService.shared
     private var imagesListServiceObserver: NSObjectProtocol?
-    private let photosName: [String] = Array(0..<20).map{ "\($0)" }
+    private var photosName: [String] = Array(0..<20).map{ "\($0)" }
+    private var photos: [ImagesListService.Photo] = []
     
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -39,14 +40,15 @@ final class ImagesListViewController: UIViewController {
         super.viewDidLoad()
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
         
-//        imagesListServiceObserver = NotificationCenter.default // "New API" observer
-//            .addObserver(
-//                forName: ImagesListService.didChangeNotification,
-//                object: nil,
-//                queue: .main
-//            ) { [weak self] _ in
-//                guard let self = self else { return }
-//            }
+        imagesListServiceObserver = NotificationCenter.default // "New API" observer
+            .addObserver(
+                forName: ImagesListService.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+//                self.updateTableViewAnimated()
+            }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -70,6 +72,21 @@ extension ImagesListViewController {
         let isLiked = indexPath.row % 2 == 0
         let likeImage = isLiked ? UIImage(named: "LikeActive") : UIImage(named: "LikeNoActive")
         cell.likeButton.setImage(likeImage, for: .normal)
+    }
+    
+    func updateTableViewAnimated() {
+        let oldCount = photos.count
+        let newCount = imagesListService.photos.count
+        photos = imagesListService.photos
+        if oldCount != newCount {
+            tableView.performBatchUpdates {
+                var indexPaths: [IndexPath] = []
+                for i in oldCount ..< newCount {
+                    indexPaths.append(IndexPath(row: i, section: 0))
+                }
+                tableView.insertRows(at: indexPaths, with: .automatic)
+            } completion: { _ in }
+        }
     }
 }
 
