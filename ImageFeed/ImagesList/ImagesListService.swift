@@ -12,7 +12,7 @@ final class ImagesListService {
     static let didChangeNotification = Notification.Name("ImagesListServiceDidChange")
     static let shared = ImagesListService()
     private (set) var photos: [Photo] = [] // Массив загруженных фотографий
-    private var lastLoadedPage: Int? // Номер последней скачанной страницы
+    private var currentPage = 1 // Номер последней скачанной страницы
     private var task: URLSessionTask? // Таска для проверки идет ли закачка фото
     private let oAuthTokenStorage = OAuth2TokenStorage()
     
@@ -20,10 +20,8 @@ final class ImagesListService {
         assert(Thread.isMainThread)
         task?.cancel()
         
-        let nextPage = lastLoadedPage == nil ? 1 : lastLoadedPage! + 1 // Какую страницу загружать
-        
-        var request = URLRequest.makeHTTPRequest(path: "/photos/?page" + "\(nextPage)" + "&&per_page=10", httpMethod: "get")
-        
+        var request = URLRequest.makeHTTPRequest(path: "/photos/?page=" + "\(currentPage)" + "&per_page=10", httpMethod: "get")
+        print(currentPage)
         if let token = oAuthTokenStorage.token {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
@@ -35,6 +33,7 @@ final class ImagesListService {
                 switch result {
                 case .success(let photoResult):
                         self.fetchPhoto(photoResult)
+                    self.currentPage += 1
                         NotificationCenter.default.post(
                             name: ImagesListService.didChangeNotification,
                             object: self,
@@ -65,7 +64,7 @@ final class ImagesListService {
     struct Photo {
         let id: String
         let size: CGSize
-        let createdAt: String
+        let createdAt: String?
         let welcomeDescription: String?
         let thumbImageURL: String?
         let largeImageURL: String?

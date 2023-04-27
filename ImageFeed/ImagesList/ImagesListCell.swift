@@ -13,9 +13,7 @@ final class ImagesListCell: UITableViewCell {
         super.prepareForReuse()
         
         // Отменяем загрузку, чтобы избежать багов при переиспользовании ячеек
-//        fillsizeImageView.kf.cancelDownloadTask()
+        cellImage.kf.cancelDownloadTask()
     }
-    
-    
 }
 
