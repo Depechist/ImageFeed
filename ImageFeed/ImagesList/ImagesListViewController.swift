@@ -70,9 +70,10 @@ extension ImagesListViewController {
         guard let thumbnailUrlString = image.thumbImageURL,
               let url = URL(string: thumbnailUrlString) else { return }
         
-        cell.cellImage.kf.setImage(with: url)
-        cell.dateLabel.text = dateFormatter.string(from: Date())
-        
+        cell.cellImage.kf.setImage(with: url) { [weak self] _ in
+            self?.tableView.reloadRows(at: [indexPath], with: .automatic)
+        }
+                
         let isLiked = indexPath.row % 2 == 0
         let likeImage = isLiked ? UIImage(named: "LikeActive") : UIImage(named: "LikeNoActive")
         cell.likeButton.setImage(likeImage, for: .normal)
@@ -98,16 +99,18 @@ extension ImagesListViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-//        let photo = photos[indexPath.row]
-//
-//        let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
-//        let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
-//        let imageWidth = image.size.width
-//        let scale = imageViewWidth / imageWidth
-//        let cellHeight = image.size.height * scale + imageInsets.top + imageInsets.bottom
-//        return cellHeight
         
-        return 150.0
+        guard let cell = tableView.cellForRow(at: indexPath) as? ImagesListCell,
+              let image = cell.cellImage.image else {
+            return 10.0 // тут должен быть размер плейсхолдера
+        }
+        
+        let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
+        let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
+        let imageWidth = image.size.width
+        let scale = imageViewWidth / imageWidth
+        let cellHeight = image.size.height * scale + imageInsets.top + imageInsets.bottom
+        return cellHeight
     }
 }
 
