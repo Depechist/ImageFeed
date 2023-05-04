@@ -12,7 +12,7 @@ final class ImagesListService {
     static let didChangeNotification = Notification.Name("ImagesListServiceDidChange")
     static let shared = ImagesListService()
     private (set) var photos: [Photo] = [] // Массив загруженных фотографий
-    private var currentPage = 1 // Номер последней скачанной страницы
+    private var currentPage = 1 // Номер текущей страницы
     private var task: URLSessionTask? // Таска для проверки идет ли закачка фото
     private let oAuthTokenStorage = OAuth2TokenStorage()
     
@@ -29,21 +29,21 @@ final class ImagesListService {
         let session = URLSession.shared
         
         let task = session.objectTask(for: request, completion: { [weak self] (result: Result<[PhotoResult], Error>) in
-                guard let self else { return }
-                switch result {
-                case .success(let photoResult):
-                        self.fetchPhoto(photoResult)
-                    self.currentPage += 1
-                        NotificationCenter.default.post(
-                            name: ImagesListService.didChangeNotification,
-                            object: self,
-                            userInfo: ["photos": self.photos])
-                case .failure(_):
-                    break
-                }
-            })
-            self.task = task
-            task.resume()
+            guard let self else { return }
+            switch result {
+            case .success(let photoResult):
+                self.fetchPhoto(photoResult)
+                self.currentPage += 1
+                NotificationCenter.default.post(
+                    name: ImagesListService.didChangeNotification,
+                    object: self,
+                    userInfo: ["photos": self.photos])
+            case .failure(_):
+                break
+            }
+        })
+        self.task = task
+        task.resume()
         // TODO: Определяем идет ли сейчас загрузка фото: Добавить свойство task: URLSessionTask? (сохраняем в нём результат urlSession.objectTask), и если task != nil, то сетевой запрос в прогрессе.
     }
     
@@ -75,7 +75,7 @@ final class ImagesListService {
         let id: String
         let width: Int
         let height: Int
-        let createdAt: String
+        let createdAt: String?
         let welcomeDescription: String?
         let isLiked: Bool
         let urls: UrlsResult

@@ -11,8 +11,6 @@ final class ImagesListViewController: UIViewController {
     
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .long
-        formatter.timeStyle = .none
         return formatter
     }()
     
@@ -30,7 +28,7 @@ final class ImagesListViewController: UIViewController {
             imagesListService.fetchPhotosNextPage()
         }
     }
-
+    
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
@@ -48,7 +46,6 @@ final class ImagesListViewController: UIViewController {
                 guard let self = self else { return }
                 self.updateTableViewAnimated()
             }
-        
         imagesListService.fetchPhotosNextPage()
     }
     
@@ -57,7 +54,7 @@ final class ImagesListViewController: UIViewController {
             let viewController = segue.destination as! SingleImageViewController // Преобразовываем segue.destionation к ожидаемому типу SingleImageViewController, прописанному в Сториборде
             let indexPath = sender as! IndexPath // Преобразовываем сендер к типу IndexPath
             let photo = photos[indexPath.row] // Получаем по индексу картинку и ее название
-//            viewController.image = image // Передаем картинку в ImageView внутри SingleImageViewController
+//                        viewController.image = image // Передаем картинку в ImageView внутри SingleImageViewController
         } else {
             super.prepare(for: segue, sender: sender) // Если это неизвестный сегвей, есть вероятность, что он был определён суперклассом (то есть родительским классом). В таком случае мы должны передать ему управление.
         }
@@ -70,10 +67,31 @@ extension ImagesListViewController {
         guard let thumbnailUrlString = image.thumbImageURL,
               let url = URL(string: thumbnailUrlString) else { return }
         
-        cell.cellImage.kf.setImage(with: url) { [weak self] _ in
+        cell.cellImage.kf.indicatorType = .activity
+        cell.cellImage.kf.setImage(
+            with: url,
+            placeholder: UIImage(named: "Stub")) { [weak self] _ in
             self?.tableView.reloadRows(at: [indexPath], with: .automatic)
         }
-                
+     
+        // указываем форматтеру формат испльзуемый на Unsplash
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+        
+        if let createDateString = image.createdAt,
+           let date = dateFormatter.date(from: createDateString) {
+            
+            // указываем форматтеру формат требуемый по дизайну
+            dateFormatter.dateFormat = "d MMMM yyyy 'г.'"
+            cell.dateLabel.text = dateFormatter.string(from: date)
+        } else {
+            cell.dateLabel.text = "date error"
+            print(image.createdAt)
+        }
+        
+        if let date = dateFormatter.date(from: image.createdAt!) {
+            cell.dateLabel.text = dateFormatter.string(from: date)
+        }
+        
         let isLiked = indexPath.row % 2 == 0
         let likeImage = isLiked ? UIImage(named: "LikeActive") : UIImage(named: "LikeNoActive")
         cell.likeButton.setImage(likeImage, for: .normal)
@@ -88,7 +106,7 @@ extension ImagesListViewController {
         }
         tableView.performBatchUpdates {
             tableView.insertRows(at: paths, with: .automatic)
-        }
+        } completion: { _ in }
     }
 }
 
@@ -100,11 +118,12 @@ extension ImagesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
-        guard let cell = tableView.cellForRow(at: indexPath) as? ImagesListCell,
-              let image = cell.cellImage.image else {
-            return 10.0 // тут должен быть размер плейсхолдера
-        }
+//        guard let cell = tableView.cellForRow(at: indexPath) as? ImagesListCell,
+//              let image = cell.cellImage.image else {
+//            return 10.0 // тут должен быть размер плейсхолдера
+//        }
         
+        let image = photos[indexPath.row]
         let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
         let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
         let imageWidth = image.size.width
