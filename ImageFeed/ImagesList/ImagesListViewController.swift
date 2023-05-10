@@ -1,5 +1,9 @@
 import UIKit
 
+protocol ImagesListCellDelegate: AnyObject {
+    func ImagesListCellDidTapLike(_ cell: ImagesListCell)
+}
+
 final class ImagesListViewController: UIViewController {
     
     @IBOutlet private var tableView: UITableView!
@@ -92,9 +96,10 @@ extension ImagesListViewController {
             cell.dateLabel.text = dateFormatter.string(from: date)
         }
         
-        let isLiked = indexPath.row % 2 == 0
-        let likeImage = isLiked ? UIImage(named: "LikeActive") : UIImage(named: "LikeNoActive")
-        cell.likeButton.setImage(likeImage, for: .normal)
+        cell.setLike(like: photos[indexPath.row].isLiked)
+//        let isLiked = indexPath.row % 2 == 0
+//        let likeImage = isLiked ? UIImage(named: "LikeActive") : UIImage(named: "LikeNoActive")
+//        cell.likeButton.setImage(likeImage, for: .normal)
     }
     
     func updateTableViewAnimated() {
@@ -133,6 +138,13 @@ extension ImagesListViewController: UITableViewDelegate {
     }
 }
 
+extension ImagesListViewController: ImagesListCellDelegate {
+    func ImagesListCellDidTapLike(_ cell: ImagesListCell) {
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        let photo = photos[indexPath.row]
+    }
+}
+
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return photos.count
@@ -144,6 +156,8 @@ extension ImagesListViewController: UITableViewDataSource {
         guard let imageListCell = cell as? ImagesListCell else {
             return UITableViewCell()
         }
+        
+        imageListCell.delegate = self
         configCell(for: imageListCell, with: indexPath)
         return imageListCell
     }

@@ -20,7 +20,7 @@ final class ImagesListService {
         assert(Thread.isMainThread)
         task?.cancel()
         
-        var request = URLRequest.makeHTTPRequest(path: "/photos/?page=" + "\(currentPage)" + "&per_page=10", httpMethod: "get")
+        var request = URLRequest.makeHTTPRequest(path: "/photos/?page=" + "\(currentPage)" + "&per_page=10", httpMethod: "GET")
         print(currentPage)
         if let token = oAuthTokenStorage.token {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
@@ -28,6 +28,7 @@ final class ImagesListService {
         
         let session = URLSession.shared
         
+        //Определяем идет ли сейчас загрузка фото: Добавить свойство task: URLSessionTask? (сохраняем в нём результат urlSession.objectTask), и если task != nil, то сетевой запрос в прогрессе.
         let task = session.objectTask(for: request, completion: { [weak self] (result: Result<[PhotoResult], Error>) in
             guard let self else { return }
             switch result {
@@ -44,7 +45,6 @@ final class ImagesListService {
         })
         self.task = task
         task.resume()
-        // TODO: Определяем идет ли сейчас загрузка фото: Добавить свойство task: URLSessionTask? (сохраняем в нём результат urlSession.objectTask), и если task != nil, то сетевой запрос в прогрессе.
     }
     
     func fetchPhoto(_ photoResult: [PhotoResult]) {
@@ -59,6 +59,66 @@ final class ImagesListService {
                 isLiked: result.isLiked)
             photos.append(photo)
         }
+    }
+    
+    func fetchLike(_ photoId: String) {
+        if let index = photos.firstIndex(where: {$0.id == photoId}) {
+            let photo = photos[index]
+            let newPhoto = Photo(
+                id: photo.id,
+                size: photo.size,
+                createdAt: photo.createdAt,
+                welcomeDescription: photo.welcomeDescription,
+                thumbImageURL: photo.thumbImageURL,
+                largeImageURL: photo.largeImageURL,
+                isLiked: !photo.isLiked)
+            photos[index] = newPhoto
+        }
+    }
+    
+    func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<Void, Error>) -> Void) {
+        assert(Thread.isMainThread)
+        task?.cancel()
+        
+        var request: URLRequest?
+        guard let token = OAuth2TokenStorage().token else { return }
+        
+        if isLike {
+            request = deleteLikeRequest(token, photoId: photoId)
+        }
+        else {
+            request = postLikeRequest(token, photoId: photoId)
+        }
+        guard let request else { return }
+        
+        let session = URLSession.shared
+        let task = session.objectTask(for: request, completion: { [weak self] (result: Result<[PhotoResult], Error>) in
+            guard let self else { return }
+            switch result {
+            case .success(_):
+                self.fetchLike(photoId)
+            case .failure(_):
+                break
+            }
+        })
+        self.task = task
+        task.resume()
+    }
+    
+    func postLikeRequest(_ token: String, photoId: String) -> URLRequest {
+        var postRequest = URLRequest.makeHTTPRequest(
+            path: "/photos/" + "\(photoId)" + "/like",
+            httpMethod: "POST")
+        postRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        return postRequest
+    }
+    
+    func deleteLikeRequest(_ token: String, photoId: String) -> URLRequest {
+        var deleteRequest = URLRequest.makeHTTPRequest(
+            path: "/photos/" + "\(photoId)" + "/like",
+            httpMethod: "DELETE")
+        deleteRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Autorization")
+        return deleteRequest
     }
     
     struct Photo {
