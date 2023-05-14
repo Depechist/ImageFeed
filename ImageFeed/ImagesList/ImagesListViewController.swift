@@ -115,6 +115,7 @@ extension ImagesListViewController {
     }
 }
 
+// MARK: - UITableViewDelegate
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: showSingleImageSegueIdentifier, sender: indexPath) // Прописываем сегвей на контроллер с одной картинокой
@@ -138,13 +139,38 @@ extension ImagesListViewController: UITableViewDelegate {
     }
 }
 
+// MARK: - ImagesListCellDelegate
 extension ImagesListViewController: ImagesListCellDelegate {
     func ImagesListCellDidTapLike(_ cell: ImagesListCell) {
+        
+        // Ищем адрес ячейки по которой произошло нажатие
         guard let indexPath = tableView.indexPath(for: cell) else { return }
+        
+        // Ищем фото по адресу из массива фото
         let photo = photos[indexPath.row]
+        
+        // Делаем запрос на изменение статуса "нравится" на противоположный
+        imagesListService.changeLike(photoId: photo.id, isLike: photo.isLiked) { [weak self] result in
+            
+            // Проверяем результат
+            switch result {
+            case .success(let photoResult):
+                
+                // Конвертируем модель PhotoResult в модель Photo
+                let updatedPhoto = photoResult.photo.asPhoto()
+                
+                // Меняем оригинальную модель на обновленную с сервера
+                self?.photos[indexPath.row] = updatedPhoto
+                
+                // Меняем иконку в ячейке на актуальную
+                cell.setLike(like: updatedPhoto.isLiked)
+            case.failure(let error): print(photo.id, error.localizedDescription)
+            }
+        }
     }
 }
 
+// MARK: - UITableViewDataSource
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return photos.count

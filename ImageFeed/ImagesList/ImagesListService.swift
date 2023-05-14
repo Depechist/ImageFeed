@@ -49,14 +49,7 @@ final class ImagesListService {
     
     func fetchPhoto(_ photoResult: [PhotoResult]) {
         for result in photoResult {
-            let photo = Photo(
-                id: result.id,
-                size: CGSize(width: result.width, height: result.height),
-                createdAt: result.createdAt,
-                welcomeDescription: result.welcomeDescription,
-                thumbImageURL: result.urls.thumb,
-                largeImageURL: result.urls.full,
-                isLiked: result.isLiked)
+            let photo = result.asPhoto()
             photos.append(photo)
         }
     }
@@ -76,7 +69,7 @@ final class ImagesListService {
         }
     }
     
-    func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<Void, Error>) -> Void) {
+    func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<PhotoLikeResult, Error>) -> Void) {
         assert(Thread.isMainThread)
         task?.cancel()
         
@@ -85,21 +78,14 @@ final class ImagesListService {
         
         if isLike {
             request = deleteLikeRequest(token, photoId: photoId)
-        }
-        else {
+        } else {
             request = postLikeRequest(token, photoId: photoId)
         }
         guard let request else { return }
-        
+        print(request.cURL(pretty: true))
         let session = URLSession.shared
-        let task = session.objectTask(for: request, completion: { [weak self] (result: Result<[PhotoResult], Error>) in
-            guard let self else { return }
-            switch result {
-            case .success(_):
-                self.fetchLike(photoId)
-            case .failure(_):
-                break
-            }
+        let task = session.objectTask(for: request, completion: { (result: Result<PhotoLikeResult, Error>) in
+            completion(result)
         })
         self.task = task
         task.resume()
@@ -117,8 +103,12 @@ final class ImagesListService {
         var deleteRequest = URLRequest.makeHTTPRequest(
             path: "/photos/" + "\(photoId)" + "/like",
             httpMethod: "DELETE")
-        deleteRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Autorization")
+        deleteRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return deleteRequest
+    }
+    
+    struct PhotoLikeResult: Codable {
+        let photo: PhotoResult
     }
     
     struct Photo {
@@ -148,6 +138,17 @@ final class ImagesListService {
             case welcomeDescription = "description"
             case isLiked = "liked_by_user"
             case urls = "urls"
+        }
+        
+        func asPhoto() -> Photo {
+            Photo(
+                id: id,
+                size: CGSize(width: width, height: height),
+                createdAt: createdAt,
+                welcomeDescription: welcomeDescription,
+                thumbImageURL: urls.thumb,
+                largeImageURL: urls.full,
+                isLiked: isLiked)
         }
     }
     
