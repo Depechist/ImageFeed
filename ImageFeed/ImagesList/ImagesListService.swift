@@ -54,21 +54,6 @@ final class ImagesListService {
         }
     }
     
-    func fetchLike(_ photoId: String) {
-        if let index = photos.firstIndex(where: {$0.id == photoId}) {
-            let photo = photos[index]
-            let newPhoto = Photo(
-                id: photo.id,
-                size: photo.size,
-                createdAt: photo.createdAt,
-                welcomeDescription: photo.welcomeDescription,
-                thumbImageURL: photo.thumbImageURL,
-                largeImageURL: photo.largeImageURL,
-                isLiked: !photo.isLiked)
-            photos[index] = newPhoto
-        }
-    }
-    
     func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<PhotoLikeResult, Error>) -> Void) {
         assert(Thread.isMainThread)
         task?.cancel()

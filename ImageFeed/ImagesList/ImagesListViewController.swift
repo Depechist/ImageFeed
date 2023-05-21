@@ -58,7 +58,8 @@ final class ImagesListViewController: UIViewController {
             let viewController = segue.destination as! SingleImageViewController // Преобразовываем segue.destionation к ожидаемому типу SingleImageViewController, прописанному в Сториборде
             let indexPath = sender as! IndexPath // Преобразовываем сендер к типу IndexPath
             let photo = photos[indexPath.row] // Получаем по индексу картинку и ее название
-//                        viewController.image = image // Передаем картинку в ImageView внутри SingleImageViewController
+            guard let imageURL = URL(string: photo.largeImageURL!) else { return }
+            viewController.imageURL = imageURL // Передаем картинку в ImageView внутри SingleImageViewController
         } else {
             super.prepare(for: segue, sender: sender) // Если это неизвестный сегвей, есть вероятность, что он был определён суперклассом (то есть родительским классом). В таком случае мы должны передать ему управление.
         }
@@ -97,9 +98,6 @@ extension ImagesListViewController {
         }
         
         cell.setLike(like: photos[indexPath.row].isLiked)
-//        let isLiked = indexPath.row % 2 == 0
-//        let likeImage = isLiked ? UIImage(named: "LikeActive") : UIImage(named: "LikeNoActive")
-//        cell.likeButton.setImage(likeImage, for: .normal)
     }
     
     func updateTableViewAnimated() {
@@ -123,12 +121,6 @@ extension ImagesListViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        
-//        guard let cell = tableView.cellForRow(at: indexPath) as? ImagesListCell,
-//              let image = cell.cellImage.image else {
-//            return 10.0 // тут должен быть размер плейсхолдера
-//        }
-        
         let image = photos[indexPath.row]
         let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
         let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
@@ -149,6 +141,9 @@ extension ImagesListViewController: ImagesListCellDelegate {
         // Ищем фото по адресу из массива фото
         let photo = photos[indexPath.row]
         
+        // Показываем лоадер
+        UIBlockingProgressHUD.show()
+        
         // Делаем запрос на изменение статуса "нравится" на противоположный
         imagesListService.changeLike(photoId: photo.id, isLike: photo.isLiked) { [weak self] result in
             
@@ -164,7 +159,12 @@ extension ImagesListViewController: ImagesListCellDelegate {
                 
                 // Меняем иконку в ячейке на актуальную
                 cell.setLike(like: updatedPhoto.isLiked)
-            case.failure(let error): print(photo.id, error.localizedDescription)
+                
+                // Убираем лоадер
+                UIBlockingProgressHUD.dismiss()
+            case.failure(let error):
+                UIBlockingProgressHUD.dismiss()
+                print(photo.id, error.localizedDescription)
             }
         }
     }
