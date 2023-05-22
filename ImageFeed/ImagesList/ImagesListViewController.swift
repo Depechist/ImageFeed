@@ -90,11 +90,6 @@ extension ImagesListViewController {
             cell.dateLabel.text = dateFormatter.string(from: date)
         } else {
             cell.dateLabel.text = "date error"
-            print(image.createdAt)
-        }
-        
-        if let date = dateFormatter.date(from: image.createdAt!) {
-            cell.dateLabel.text = dateFormatter.string(from: date)
         }
         
         cell.setLike(like: photos[indexPath.row].isLiked)
