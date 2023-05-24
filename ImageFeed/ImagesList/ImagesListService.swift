@@ -33,7 +33,7 @@ final class ImagesListService {
             guard let self else { return }
             switch result {
             case .success(let photoResult):
-                self.fetchPhoto(photoResult)
+                self.photos.append(contentsOf: photoResult.map { $0.asPhoto() })
                 self.currentPage += 1
                 NotificationCenter.default.post(
                     name: ImagesListService.didChangeNotification,
@@ -45,13 +45,6 @@ final class ImagesListService {
         })
         self.task = task
         task.resume()
-    }
-    
-    func fetchPhoto(_ photoResult: [PhotoResult]) {
-        for result in photoResult {
-            let photo = result.asPhoto()
-            photos.append(photo)
-        }
     }
     
     func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<PhotoLikeResult, Error>) -> Void) {
