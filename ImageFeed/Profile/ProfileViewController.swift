@@ -111,6 +111,8 @@ final class ProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         
+        view.backgroundColor = .ypBlack
+        
         addSubViews()
         applyConstraints()
         updateProfileDetails(profile: profileService.profile!)

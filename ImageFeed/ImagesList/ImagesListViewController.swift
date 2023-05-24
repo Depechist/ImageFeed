@@ -78,20 +78,35 @@ extension ImagesListViewController {
             placeholder: UIImage(named: "Stub")) { [weak self] _ in
             self?.tableView.reloadRows(at: [indexPath], with: .automatic)
         }
-     
-        // указываем форматтеру формат испльзуемый на Unsplash
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+
+        // ВАРИАНТ С ФОРМАТТЕРОМ РЕАЛИЗОВАННЫМ ПО УЧЕБНИКУ (ПОДГРУЖАЕТ С БУКВОЙ "Г." В КОНЦЕ):
         
-        if let createDateString = image.createdAt,
-           let date = dateFormatter.date(from: createDateString) {
-            
-            // указываем форматтеру формат требуемый по дизайну
-            dateFormatter.dateFormat = "d MMMM yyyy 'г.'"
-            cell.dateLabel.text = dateFormatter.string(from: date)
+        let dateFormatter = ISO8601DateFormatter()
+        if let createdAt = image.createdAt, // "2016-05-03T11:00:28-04:00"
+           let date = dateFormatter.date(from: createdAt) {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .medium
+            dateFormatter.timeStyle = .none
+            cell.dateLabel.text = dateFormatter.string(from: date) // "3 May 2016"
         } else {
             cell.dateLabel.text = "date error"
         }
         
+        // ВАРИАНТ ФОРМАТТЕРА, КОТОРЫЙ ПОДГРУЖАЕТ ДАТУ БЕЗ БУКВЫ "Г." В КОНЦЕ:
+        
+//        // указываем форматтеру формат испльзуемый на Unsplash
+//        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+//
+//        if let createDateString = image.createdAt,
+//           let date = dateFormatter.date(from: createDateString) {
+//
+//            // указываем форматтеру формат требуемый по дизайну
+//            dateFormatter.dateFormat = "d MMMM yyyy"
+//            cell.dateLabel.text = dateFormatter.string(from: date)
+//        } else {
+//            cell.dateLabel.text = "date error"
+//        }
+//
         cell.setLike(like: photos[indexPath.row].isLiked)
     }
     

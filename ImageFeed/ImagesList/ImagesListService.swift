@@ -67,7 +67,6 @@ final class ImagesListService {
             request = postLikeRequest(token, photoId: photoId)
         }
         guard let request else { return }
-        print(request.cURL(pretty: true))
         let session = URLSession.shared
         let task = session.objectTask(for: request, completion: { (result: Result<PhotoLikeResult, Error>) in
             completion(result)

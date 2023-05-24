@@ -8,10 +8,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        
-        ProgressHUD.animationType = .systemActivityIndicator
-        ProgressHUD.colorHUD = .ypBlack
-        ProgressHUD.colorAnimation = .ypGray
         return true
     }
 
