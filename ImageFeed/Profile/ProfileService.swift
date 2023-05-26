@@ -11,14 +11,17 @@ final class ProfileService {
         case codeError
     }
     
-    private func convertToProfile(_ ProfileResult: ProfileResult) -> Profile {
-        let name = ProfileResult.lastName != nil ? "\(ProfileResult.firstName) \(ProfileResult.lastName!)" : "\(ProfileResult.firstName)"
+    private func convertToProfile(_ profileResult: ProfileResult) -> Profile {
+        var lastName = profileResult.lastName.map { " \($0)" } ?? ""
+        let name = profileResult.firstName + lastName
+        
+//        let name = profileResult.lastName != nil ? "\(profileResult.firstName) \(profileResult.lastName!)" : "\(profileResult.firstName)"
         
         return Profile(
-            username: ProfileResult.userName,
-            loginName: "@\(ProfileResult.userName)",
+            username: profileResult.userName,
+            loginName: "@\(profileResult.userName)",
             name: name,
-            bio: ProfileResult.bio ?? "")
+            bio: profileResult.bio ?? "")
          }
     
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {

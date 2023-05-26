@@ -13,6 +13,11 @@ final class ImagesListViewController: UIViewController {
     private var imagesListServiceObserver: NSObjectProtocol?
     private var photos: [ImagesListService.Photo] = []
     
+    private lazy var dateFormatterIso: ISO8601DateFormatter = {
+        let formatterIso = ISO8601DateFormatter()
+        return formatterIso
+    }()
+    
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         return formatter
@@ -79,12 +84,10 @@ extension ImagesListViewController {
             self?.tableView.reloadRows(at: [indexPath], with: .automatic)
         }
 
-        // ВАРИАНТ С ФОРМАТТЕРОМ РЕАЛИЗОВАННЫМ ПО УЧЕБНИКУ (ПОДГРУЖАЕТ С БУКВОЙ "Г." В КОНЦЕ):
+        // ВАРИАНТ С ФОРМАТТЕРАМИ РЕАЛИЗОВАННЫМИ ПО УЧЕБНИКУ (ПОДГРУЖАЕТ С БУКВОЙ "Г." В КОНЦЕ):
         
-        let dateFormatter = ISO8601DateFormatter()
         if let createdAt = image.createdAt, // "2016-05-03T11:00:28-04:00"
-           let date = dateFormatter.date(from: createdAt) {
-            let dateFormatter = DateFormatter()
+           let date = dateFormatterIso.date(from: createdAt) {
             dateFormatter.dateStyle = .medium
             dateFormatter.timeStyle = .none
             cell.dateLabel.text = dateFormatter.string(from: date) // "3 May 2016"
@@ -92,7 +95,7 @@ extension ImagesListViewController {
             cell.dateLabel.text = "date error"
         }
         
-        // ВАРИАНТ ФОРМАТТЕРА, КОТОРЫЙ ПОДГРУЖАЕТ ДАТУ БЕЗ БУКВЫ "Г." В КОНЦЕ:
+        // ИЗНАЧАЛЬНЫЙ ВАРИАНТ ФОРМАТТЕРА, КОТОРЫЙ ПОДГРУЖАЕТ ДАТУ БЕЗ БУКВЫ "Г." В КОНЦЕ:
         
 //        // указываем форматтеру формат испльзуемый на Unsplash
 //        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
