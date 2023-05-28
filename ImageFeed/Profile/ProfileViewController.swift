@@ -13,6 +13,8 @@ final class ProfileViewController: UIViewController {
     private lazy var avatar: UIImageView = {
         let profileimage = UIImage(named: "Photo")
         let avatar = UIImageView(image: profileimage)
+        avatar.layer.cornerRadius = 35.0
+        avatar.clipsToBounds = true
         avatar.translatesAutoresizingMaskIntoConstraints = false
         return avatar
     }()
@@ -48,7 +50,7 @@ final class ProfileViewController: UIViewController {
         let logoutButton = UIButton.systemButton(
             with: UIImage(named: "LogoutButton")!,
             target: self,
-            action: nil)
+            action: #selector(self.didTapLogoutButton))
         logoutButton.tintColor = UIColor(named: "YP Red")
         logoutButton.translatesAutoresizingMaskIntoConstraints = false
         return logoutButton
@@ -94,17 +96,25 @@ final class ProfileViewController: UIViewController {
             let profileImageURL = profileImageService.profileImageURL,
             let url = URL(string: profileImageURL)
         else { return }
-        let processor = RoundCornerImageProcessor(cornerRadius: 61)
+        let processor = RoundCornerImageProcessor(cornerRadius: 50)
         avatar.kf.setImage(with: url, options: [.processor(processor)])
+    }
+    
+    @objc private func didTapLogoutButton() {
+        storageToken.clearToken()
+        WebViewViewController.cleanCookies()
+        guard let window = UIApplication.shared.windows.first else { fatalError("Invalid window configuration") }
+        window.rootViewController = SplashViewController()
     }
     
     //MARK: - Lifecycle
     
     override func viewDidLoad() {
         
+        view.backgroundColor = .ypBlack
+        
         addSubViews()
         applyConstraints()
-        
         updateProfileDetails(profile: profileService.profile!)
         updateAvatar()
         
@@ -117,7 +127,6 @@ final class ProfileViewController: UIViewController {
                 guard let self = self else { return }
                 self.updateAvatar()
             }
-        
     }
 }
 

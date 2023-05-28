@@ -5,7 +5,6 @@ final class SplashViewController: UIViewController {
     private let showAuthenticationScreenSegueIdentifier = "ShowAuthenticationScreen"
     private let profileService = ProfileService.shared
     private let profileImageService = ProfileImageService.shared
-//    private let authViewController = AuthViewController()
     private let oauth2Service = OAuth2Service.shared
     private let oauth2TokenStorage = OAuth2TokenStorage()
     private var isFirstLaunch = true
@@ -27,9 +26,9 @@ final class SplashViewController: UIViewController {
                                      as? AuthViewController else { return }
                 authViewController.delegate = self
                 authViewController.modalPresentationStyle = .fullScreen
+                isFirstLaunch = false
                 return present(authViewController, animated: true)
             } }
-        isFirstLaunch = false
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -102,6 +101,7 @@ extension SplashViewController: AuthViewControllerDelegate {
             }
         })
     }
+    
     private func fetchProfileImage(token: String, username: String) {
         profileImageService.fetchProfileImageURL(token: token, username: username, { [weak self] result in
             guard let self = self else { return }

@@ -11,8 +11,17 @@ final class ProfileService {
         case codeError
     }
     
-    private func convertToProfile(_ ProfileResult: ProfileResult) -> Profile {
-        return Profile(username: ProfileResult.userName, name: "\(ProfileResult.firstName) \(ProfileResult.lastName)", loginName: "@\(ProfileResult.userName)", bio: ProfileResult.bio ?? "")
+    private func convertToProfile(_ profileResult: ProfileResult) -> Profile {
+        var lastName = profileResult.lastName.map { " \($0)" } ?? ""
+        let name = profileResult.firstName + lastName
+        
+//        let name = profileResult.lastName != nil ? "\(profileResult.firstName) \(profileResult.lastName!)" : "\(profileResult.firstName)"
+        
+        return Profile(
+            username: profileResult.userName,
+            loginName: "@\(profileResult.userName)",
+            name: name,
+            bio: profileResult.bio ?? "")
          }
     
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
@@ -39,7 +48,8 @@ final class ProfileService {
     }
     
     struct ProfileResult: Codable {
-        let userName, firstName, lastName: String
+        let userName, firstName: String
+        let lastName: String?
         let bio: String?
         
         enum CodingKeys: String, CodingKey {
@@ -51,7 +61,7 @@ final class ProfileService {
     }
     
     struct Profile: Codable {
-        let username, name, loginName: String
+        let username, loginName, name: String
         let bio: String
     }
 }
