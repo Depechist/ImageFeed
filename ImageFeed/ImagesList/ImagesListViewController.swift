@@ -13,15 +13,8 @@ final class ImagesListViewController: UIViewController {
     private var imagesListServiceObserver: NSObjectProtocol?
     private var photos: [ImagesListService.Photo] = []
     
-    private lazy var dateFormatterIso: ISO8601DateFormatter = {
-        let formatterIso = ISO8601DateFormatter()
-        return formatterIso
-    }()
-    
-    private lazy var dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        return formatter
-    }()
+    private lazy var dateFormatterIso = ISO8601DateFormatter()
+    private lazy var dateFormatter = DateFormatter()
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
