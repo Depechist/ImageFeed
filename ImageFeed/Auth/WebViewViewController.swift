@@ -1,18 +1,20 @@
 import UIKit
 import WebKit
 
-private struct APIConstants {
-    static let authorizeURLString = "https://unsplash.com/oauth/authorize"
-    static let code = "code"
-    static let authorizationCodePath = "/oauth/authorize/native"
-}
-
 protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
     func webViewViewControllerDidCancel(_ vc: WebViewViewController)
 }
 
-final class WebViewViewController: UIViewController {
+public protocol WebViewViewControllerProtocol: AnyObject {
+    var presenter: WebViewPresenterProtocol? { get set }
+    func load(request: URLRequest)
+    func setProgressValue(_ newValue: Float)
+    func setProgressHidden(_ isHidden: Bool)
+}
+
+final class WebViewViewController: UIViewController, WebViewViewControllerProtocol {
+    var presenter: WebViewPresenterProtocol?
     
     @IBOutlet private weak var webView: WKWebView!
     @IBOutlet private weak var progressView: UIProgressView!
@@ -23,9 +25,23 @@ final class WebViewViewController: UIViewController {
     weak var delegate: WebViewViewControllerDelegate?
     private var estimatedProgressObservation: NSKeyValueObservation?
     
-    private func updateProgress() {
-        progressView.progress = Float(webView.estimatedProgress)
-        progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
+    func setProgressValue(_ newValue: Float) {
+        progressView.progress = newValue
+    }
+    
+    func setProgressHidden(_ isHidden: Bool) {
+        progressView.isHidden = isHidden
+    }
+    
+    func load(request: URLRequest) {
+        webView.load(request)
+    }
+    
+    private func code(from navigationAction: WKNavigationAction) -> String? {
+        if let url = navigationAction.request.url {
+            return presenter?.code(from: url)
+        }
+        return nil
     }
     
     override func viewDidLoad() {
@@ -35,11 +51,11 @@ final class WebViewViewController: UIViewController {
             \.estimatedProgress,
              changeHandler: { [weak self] _, _ in
                  guard let self = self else { return }
-                 self.updateProgress()
+                 self.presenter?.didUpdateProgressValue(self.webView.estimatedProgress)
              })
         
         webView.navigationDelegate = self
-        loadWebView()
+        presenter?.viewDidLoad()
     }
 }
 
@@ -47,7 +63,7 @@ extension WebViewViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView,
                  decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        if let code = fetchCode(from: navigationAction.request.url) {
+        if let code = code(from: navigationAction) {
             delegate?.webViewViewController(self, didAuthenticateWithCode: code)
             decisionHandler(.cancel)
         } else {
@@ -57,33 +73,6 @@ extension WebViewViewController: WKNavigationDelegate {
 }
 
 extension WebViewViewController {
-    func loadWebView() {
-        var urlComponents = URLComponents(string: APIConstants.authorizeURLString)!
-        urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: accessKey),
-            URLQueryItem(name: "redirect_uri", value: redirectURI),
-            URLQueryItem(name: "response_type", value: APIConstants.code),
-            URLQueryItem(name: "scope", value: accessScope)
-        ]
-        if let url = urlComponents.url {
-            let request = URLRequest(url: url)
-            webView.load(request)
-        }
-    }
-    
-    func fetchCode(from url: URL?) -> String? {
-        if
-            let url = url,
-            let urlComponents = URLComponents(string: url.absoluteString),
-            urlComponents.path == APIConstants.authorizationCodePath,
-            let items = urlComponents.queryItems,
-            let codeItem = items.first(where: { $0.name == APIConstants.code })
-        { return codeItem.value
-        } else {
-            return nil
-        }
-    }
-    
     static func cleanCookies() {
         // Очищаем все куки из хранилища
         HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)

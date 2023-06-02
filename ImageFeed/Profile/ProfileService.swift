@@ -12,7 +12,7 @@ final class ProfileService {
     }
     
     private func convertToProfile(_ profileResult: ProfileResult) -> Profile {
-        var lastName = profileResult.lastName.map { " \($0)" } ?? ""
+        let lastName = profileResult.lastName.map { " \($0)" } ?? ""
         let name = profileResult.firstName + lastName
         
 //        let name = profileResult.lastName != nil ? "\(profileResult.firstName) \(profileResult.lastName!)" : "\(profileResult.firstName)"
