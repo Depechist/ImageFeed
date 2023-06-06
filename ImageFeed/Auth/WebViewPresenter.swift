@@ -11,21 +11,22 @@ public protocol WebViewPresenterProtocol {
     var view: WebViewViewControllerProtocol? { get set }
     func viewDidLoad()
     func didUpdateProgressValue(_ newValue: Double)
-    func code(from url: URL?) -> String?
+    func code(from url: URL) -> String?
 }
 
 final class WebViewPresenter: WebViewPresenterProtocol {
     
     weak var view: WebViewViewControllerProtocol?
+    var authHelper: AuthHelperProtocol
     
-    private struct APIConstants {
-        static let authorizeURLString = "https://unsplash.com/oauth/authorize"
-        static let code = "code"
-        static let authorizationCodePath = "/oauth/authorize/native"
+    init(authHepler: AuthHelperProtocol) {
+        self.authHelper = authHepler
     }
     
     func viewDidLoad() {
-        loadWebView()
+        let request = authHelper.authRequest()
+        view?.load(request: request)
+        didUpdateProgressValue(0)
     }
     
     func didUpdateProgressValue(_ newValue: Double) {
@@ -40,34 +41,7 @@ final class WebViewPresenter: WebViewPresenterProtocol {
         abs(value - 1.0) <= 0.0001
     }
     
-    func loadWebView() {
-        var urlComponents = URLComponents(string: APIConstants.authorizeURLString)!
-        urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: accessKey),
-            URLQueryItem(name: "redirect_uri", value: redirectURI),
-            URLQueryItem(name: "response_type", value: APIConstants.code),
-            URLQueryItem(name: "scope", value: accessScope)
-        ]
-        if let url = urlComponents.url {
-            let request = URLRequest(url: url)
-            
-            didUpdateProgressValue(0)
-            
-            view?.load(request: request)
+    func code(from url: URL) -> String? {
+            authHelper.code(from: url)
         }
-    }
-    
-    func code(from url: URL?) -> String? {
-        if
-            let url = url,
-            let urlComponents = URLComponents(string: url.absoluteString),
-            urlComponents.path == APIConstants.authorizationCodePath,
-            let items = urlComponents.queryItems,
-            let codeItem = items.first(where: { $0.name == APIConstants.code })
-        {
-            return codeItem.value
-        } else {
-            return nil
-        }
-    }
 }
