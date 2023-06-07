@@ -32,10 +32,6 @@ class AuthHelper: AuthHelperProtocol {
             URLQueryItem(name: "response_type", value: "code"),
             URLQueryItem(name: "scope", value: configuration.accessScope)
         ]
-        print("AuthorizeURLString: \(configuration.authorizeURLString)")
-        print("AccessKey: \(configuration.accessKey)")
-        print("RedirectURI: \(configuration.redirectURI)")
-        print("AccessScope: \(configuration.accessScope)")
         return urlComponents.url!
     }
     
