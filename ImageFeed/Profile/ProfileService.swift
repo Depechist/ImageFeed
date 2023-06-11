@@ -12,7 +12,7 @@ final class ProfileService {
     }
     
     private func convertToProfile(_ profileResult: ProfileResult) -> Profile {
-        var lastName = profileResult.lastName.map { " \($0)" } ?? ""
+        let lastName = profileResult.lastName.map { " \($0)" } ?? ""
         let name = profileResult.firstName + lastName
         
 //        let name = profileResult.lastName != nil ? "\(profileResult.firstName) \(profileResult.lastName!)" : "\(profileResult.firstName)"
@@ -68,7 +68,7 @@ final class ProfileService {
 
 extension ProfileService {
     private func makeRequest(token: String) -> URLRequest {
-        guard let url = URL(string: "\(defaultBaseURL)" + "/me") else { fatalError("Failed to create URL") }
+        guard let url = URL(string: "\(defaultBaseURLGlobal)" + "/me") else { fatalError("Failed to create URL") }
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request

@@ -54,6 +54,7 @@ final class SplashViewController: UIViewController {
         view.backgroundColor = .ypBlack
         view.addSubview(splashScreenLogo)
         
+        
         NSLayoutConstraint.activate([
             splashScreenLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             splashScreenLogo.centerYAnchor.constraint(equalTo: view.centerYAnchor)
